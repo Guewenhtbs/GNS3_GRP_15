@@ -1,21 +1,26 @@
 import json 
 
+
+with open('Donnees_test.json','r',encoding='utf-8') as f :
+    data = json.load(f)
+
 class AS :
-    def  __init__(self, as_n:str, igp:str, neighbors_list:list):
-        self.number = as_n
-        self.igp = igp
+    def  __init__(self, AS_data):
+        self.number = AS_data["AS_number"]
+        self.igp = AS_data["IGP"]
         self.router = []
-        self.neighbors = neighbors_list
+        self.neighbors = AS_data["voisinage"]
+        self.prefixes = AS_data["prefixes"]
 
     def __str__(self):
-        return (f"Le numéro d'AS est {self.number}, le protocole interne est {self.igp}, les routeurs de l'AS sont {self.router}, les voisins sont {self.neighbors}.")
+        return (f"Le numéro d'AS est {self.number}, le protocole interne est {self.igp}, les routeurs de l'AS sont {self.router}, les voisins sont {self.neighbors}, les préfixes réseaux sont {self.prefixes}.")
     
 class ROUTER :
-    def __init__(self, r_n:int, ip_list:list, neighbors_list:list, border_list:str, as_n:str):
-        self.name = r_n
-        self.ip = ip_list
-        self.neighbors = neighbors_list
-        self.border = border_list
+    def __init__(self, RTR_data, as_n):
+        self.name = RTR_data["R_name"]
+        self.ip = RTR_data["ip_address"]
+        self.neighbors = RTR_data["voisins"]
+        self.border = RTR_data["border"]
         self.as_n = as_n
         self.id = (f"{self.name}.{self.name}.{self.name}.{self.name}")
 
@@ -26,16 +31,20 @@ class ROUTER :
         return (f"R{self.name}")
 
 
-def main():
-    sfr = AS("11111","OSPF",["22222"])
-    marbella = ROUTER(1,["3500:1::1/64",None,None,None,"3500:3500::1/128"],[2,None,None,None],[0],None)
-    marbella.as_n = sfr.number
-    sfr.router.append(marbella)
-    print(sfr)
-    print(marbella)
-    free = AS("22222","OSPF",["11111"])
-    print(free)
+def lecture_json():
+    liste_AS = []
+    i = 0
+    for AS_data in data["AS"]:
+        liste_AS.append(AS(AS_data))
+        for RTR_data in AS_data["routeur"]:
+            liste_AS[i].router.append(ROUTER(RTR_data,liste_AS[i].number))
+        i+=1
+    for j in liste_AS :
+        print(j)
+        for k in j.router :
+            print (k)
     return
 
-main()
+##############MAIN#############
+lecture_json()
     
