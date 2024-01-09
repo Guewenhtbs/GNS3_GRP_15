@@ -1,5 +1,5 @@
-import json 
-
+import json
+from datetime import datetime
 
 with open('Donnees_test.json','r',encoding='utf-8') as f :
     data = json.load(f)
@@ -47,4 +47,15 @@ def lecture_json():
 
 ##############MAIN#############
 lecture_json()
-    
+
+
+
+
+def debut(nom):
+    now = datetime.utcnow()
+    formatted_date = now.strftime("%H:%M:%S UTC %a %b %d %Y")
+    fichier = open("conf.txt", "w")
+    fichier.write("!\n\n!\n! Last configuration change at " + formatted_date + "\n!\nversion 15.2\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\n!\nhostame R"+ nom +"\n!\nboot-start-marker\nboot-end-marker\n!\n!\n!\nno aaa new-model\nno ip icmp rate-limit unreachable\nip cef\n!\n!\n!\n!\n!\n!\nno ip domain lookup\nipv6 unicast-routing\nipv6 cef\n!\n!\nmultilink bundle-name authenticated\n!\n!\n!\n!\n!\n!\n!\n!\n!\nip tcp synwait-time 5\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!")
+    fichier.close()
+
+debut("12")
