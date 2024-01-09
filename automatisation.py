@@ -68,12 +68,17 @@ def interfaces(ip,igp,name):
     if igp == "RIP" :
         fichier.write(f"\n ipv6 rip 15 enable\n!")
 
+    nom_interface : ["FastEthernet0/0","GigabitEthernet1/0","GigabitEthernet2/0","GigabitEthernet3/0"]
+
+    for interface in nom_interface :
+    
     fichier.write("\ninterface FastEthernet0/0")
     if ip[0]==None :
         fichier.write("\n shutdown\n  duplex full")
     else :
         aux_interfaces(ip[0],igp,)
-        
+    
+
     fichier.write("\ninterface GigabitEthernet1/0")
     if ip[1]==None :
         fichier.write("\n no ip address\n shutdown\n negotiation auto")
