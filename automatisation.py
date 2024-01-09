@@ -1,7 +1,7 @@
 import json 
 
 
-with open('Donnees_test.json','r',encoding='utf-8') as f :
+with open("Donnees_test.json",'r',encoding='utf-8') as f :
     data = json.load(f)
 
 class AS :
@@ -39,36 +39,39 @@ def lecture_json():
         for RTR_data in AS_data["routeur"]:
             liste_AS[i].router.append(ROUTER(RTR_data,liste_AS[i].number))
         i+=1
-    for j in liste_AS :
-        print(j)
-        for k in j.router :
-            print (k)
+    #for j in liste_AS :
+    #    print(j)
+    #    for k in j.router :
+    #        print (k)
     return liste_AS
 
 def BGP(r_name,AS,r_id,neighbors_BGP,prefixes):
-    fichier = open(f"./config_test/R{r_name}.txt","a")
+    fichier = open(f"Config_test/R{r_name}.txt","w")
     fichier.write(f"\nrouter bgp {AS}\n bgp router-id {r_id}\n bgp log-neighbor-changes\n no bgp default ipv4-unicast")
+    border = False
     for (ip,v_AS) in neighbors_BGP :
         if v_AS == AS :
-            fichier.write(f"\n neighbor {ip} remote-as {v_AS}\n update-source Loopback0")
+            fichier.write(f"\n neighbor {ip} remote-as {v_AS}\n neighbor {ip} update-source Loopback0")
         else :
             fichier.write(f"\n neighbor {ip} remote-as {v_AS}")
+            border = True
     fichier.write("\n !\n address-family ipv4\n exit-address-family\n !\n address-family ipv6")
-    for pref in prefixes :
-        fichier.write(f"\n  network {pref}")
+    if border == True :
+        for pref in prefixes :
+            fichier.write(f"\n  network {pref}")
     for (ip,_) in neighbors_BGP :
         fichier.write(f"\n  neighbor {ip} activate")
-    fichier.write("\n exit-address-family\n!\nipforward-protocol nd\n!\n!\nno ip http server\nno ip http secure-server\n")
+    fichier.write("\n exit-address-family\n!\nipforward-protocol nd\n!\n!\nno ip http server\nno ip http secure-server\n!")
     fichier.close()
 
 def search_ip(r_name,v_name,liste_AS,AS_n):
     for As in liste_AS :
-        if As.number == AS_n :
+        if As.number == str(AS_n) :
             for router in As.router :
                 if router.name == v_name :
                     for index in range(4):
                         if router.neighbors[index] == r_name :
-                            return router.ip_address[index]
+                            return router.ip[index]
     print("IP non trouvé")
     return None
 
@@ -77,18 +80,18 @@ def search_ip(r_name,v_name,liste_AS,AS_n):
 liste_AS = lecture_json()
 for As in liste_AS :
     for router in As.router :
-        debut(router.name)
-        interface()
-        neighbor_bgp = []
+        #debut(router.name)
+        #interface()
+        neighbors_bgp = []
         index = 1
         for neighbor in router.neighbors :
             for i in range(router.border[0]) :
                 if router.border[i*2+1] == index :
-                    neighbor_bgp.append((search_ip(neighbor),router.border[i*2+2]))
-            for v_router in As.router :
-                if router != router :
-                    neighbor_bgp.append((v_router.ip_address[4],As.number))
-    
-
-        BGP(router.name,As.number,router.id,)
+                    neighbors_bgp.append((search_ip(router.name,neighbor,liste_AS,router.border[i*2+2]),router.border[i*2+2]))
+                index+=1
+        for v_router in As.router :
+            if router != v_router :
+                neighbors_bgp.append((v_router.ip[4],As.number))
+            
+        BGP(router.name,As.number,router.id,neighbors_bgp,As.prefixes)
     
