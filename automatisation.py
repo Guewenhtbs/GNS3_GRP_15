@@ -51,11 +51,57 @@ lecture_json()
 
 
 
-def debut(nom):
+def debut(name):
     now = datetime.utcnow()
     formatted_date = now.strftime("%H:%M:%S UTC %a %b %d %Y")
-    fichier = open("conf.txt", "w")
+    fichier = open("conf"+ str(name) +".txt", "w")
     fichier.write("!\n\n!\n! Last configuration change at " + formatted_date + "\n!\nversion 15.2\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\n!\nhostame R"+ nom +"\n!\nboot-start-marker\nboot-end-marker\n!\n!\n!\nno aaa new-model\nno ip icmp rate-limit unreachable\nip cef\n!\n!\n!\n!\n!\n!\nno ip domain lookup\nipv6 unicast-routing\nipv6 cef\n!\n!\nmultilink bundle-name authenticated\n!\n!\n!\n!\n!\n!\n!\n!\n!\nip tcp synwait-time 5\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!")
     fichier.close()
 
 debut("12")
+
+def interfaces(ip,igp,name,id):
+    fichier = open("conf.txt", "w")
+    fichier.write(f"\ninterface Loopback0\n no ip address\n ipv6 address {ip[4]}/128\n ipv6 enable")
+    if igp == OSPF :
+        fichier.write(f"\n ipv6 ospf 15 area 0\n!")
+    if igp == RIP :
+        fichier.write(f"\n ipv6 rip 15 enable\n!")
+
+    fichier.write("\ninterface FastEthernet0/0")
+    if ip[0]==None :
+        fichier.write("\n shutdown\n  duplex full")
+    else :
+        aux_interfaces(ip[0],igp)
+        
+    fichier.write("\ninterface GigabitEthernet1/0")
+    if ip[1]==None :
+        fichier.write("\n no ip address\n shutdown\n negotiation auto")
+    else :
+        aux_interfaces(ip[1],igp)
+
+    fichier.write("\ninterface GigabitEthernet2/0")
+    if ip[2]==None :
+        fichier.write("\n no ip address\n shutdown\n negotiation auto")
+    else :
+        aux_interfaces(ip[2],igp)
+    fichier.write("\ninterface GigabitEthernet3/0")
+    if ip[3]==None :
+        fichier.write("\n no ip address\n shutdown\n negotiation auto")
+    else :
+        aux_interfaces(ip[3],igp)
+    fichier.close()
+
+
+def aux_interfaces(adresse, igp):
+    fichier.write(f"\n no ip address\n ipv6 address {adresse}/64\n ipv6 enable\n")
+    if igp == OSPF :
+        fichier.write(f"\n ipv6 ospf 15 area 0\n!")
+    if igp == RIP :
+        fichier.write(f"\n ipv6 rip 15 enable\n!")
+
+
+
+
+
+    
