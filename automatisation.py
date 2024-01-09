@@ -39,11 +39,11 @@ def lecture_json():
         for RTR_data in AS_data["routeur"]:
             liste_AS[i].router.append(ROUTER(RTR_data,liste_AS[i].number))
         i+=1
-    for j in liste_AS :
-        print(j)
-        for k in j.router :
-            print (k)
-    return
+    #for j in liste_AS :
+    #    print(j)
+    #    for k in j.router :
+    #        print (k)
+    return liste_AS
 
 ##############MAIN#############
 lecture_json()
@@ -67,7 +67,7 @@ def interfaces(fichier, ip, igp, name):
 
     fichier.write(f"\ninterface {nom_interface[0]}")
     if ip[0] is None:
-        fichier.write("\n shutdown\n  duplex full")
+        fichier.write("\n no ip address\n shutdown\n duplex full\n!")
     else:
         fichier.write(f"\n no ip address\n duplex full\n ipv6 address {ip[0]}/64\n ipv6 enable")
         if igp == "OSPF":
@@ -89,6 +89,10 @@ def aux_interfaces(fichier, adresse, igp):
     if igp == "RIP":
         fichier.write(f"\n ipv6 rip 15 enable\n!")
 
-with open("conf.txt", "w") as fichier:
-    debut(fichier, "8")
-    interfaces(fichier, ['2023:1::2', '2200:2::2', None, None,'3522::8'], "OSPF", "8")
+liste_AS = lecture_json()
+print(liste_AS)
+for As in liste_AS:
+    for router in As.router:
+        with open(f"R{router.name}.txt", "w") as fichier:
+            debut(fichier, router.name)
+            interfaces(fichier, router.ip, As.igp, router.name)
