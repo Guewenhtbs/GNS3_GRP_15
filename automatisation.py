@@ -43,8 +43,38 @@ def lecture_json():
         print(j)
         for k in j.router :
             print (k)
-    return
+    return liste_AS
+
+def BGP(r_name,AS,r_id,neighbors_BGP,prefixes):
+    fichier = open(f"R{r_name}.txt","a")
+    fichier.write(f"\nrouter bgp {AS}\n bgp router-id {r_id}\n bgp log-neighbor-changes\n no bgp default ipv4-unicast")
+    for (ip,v_AS) in neighbors_BGP :
+        if v_AS == AS :
+            fichier.write(f"\n neighbor {ip} remote-as {v_AS}\n update-source Loopback0")
+        else :
+            fichier.write(f"\n neighbor {ip} remote-as {v_AS}")
+    fichier.write("\n !\n address-family ipv4\n exit-address-family\n !\n address-family ipv6")
+    for pref in prefixes :
+        fichier.write(f"\n  network {pref}")
+    for (ip,_) in neighbors_BGP :
+        fichier.write(f"\n  neighbor {ip} activate")
+    fichier.write("\n exit-address-family\n!\nipforward-protocol nd\n!\n!\nno ip http server\nno ip http secure-server\n")
+    fichier.close()
+
 
 ##############MAIN#############
-lecture_json()
+liste_AS = lecture_json()
+for As in liste_AS :
+    for router in As.router :
+        debut(router.name)
+        interface()
+        neighbor_bgp = []
+        index = 1
+        for neighbor in router.neighbors :
+            for i in range(router.border[0]) :
+                if router.border[i*2+1] == index :
+                    neighbor_bgp.append((search_ip(neighbor),router.border[i*2+2]))
+    
+
+        BGP(router.name,As.number,router.id,)
     
