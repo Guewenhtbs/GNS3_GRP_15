@@ -65,14 +65,14 @@ def BGP(r_name,AS,r_id,neighbors_BGP,prefixes) :
     fichier.close()
 
 def IGP(r_name,r_id,igp,passive) :
-    fichier = open(f"Config_test/R{r_name}.txt","w")
+    fichier = open(f"Config_test/R{r_name}.txt","a")
     if igp == "RIP" :
         fichier.write(f"\nipv6 routeur rip 15\n redistribute connected")
     elif igp == "OSPF" :
         fichier.write(f"\nipv6 router ospf 15\n router-id {r_id}")
         for interface in passive :
-            fichier.write(f"passive-interface {interface}")
-    fichier.write("\n!\n!\n!\n!\ncontrol-plane\n!\n!\nline con 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline vty 0 4\n login\n!\n!\nend")
+            fichier.write(f"\npassive-interface {interface}")
+    fichier.write("\n!\n!\n!\n!\ncontrol-plane\n!\n!\nline con 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline aux 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline vty 0 4\n login\n!\n!\nend")
 
 def search_ip(r_name,v_name,liste_AS,AS_n) :
     for As in liste_AS :
@@ -88,7 +88,7 @@ def search_ip(r_name,v_name,liste_AS,AS_n) :
 
 ##############MAIN#############
 liste_AS = lecture_json()
-correspondance : {1 : "FastEthernet0/0", 2 : "GigabitEthernet1/0", 3 : "GigabitEthernet2/0", 4 : "GigabitEthernet3/0"}
+correspondance = {1 : "FastEthernet0/0", 2 : "GigabitEthernet1/0", 3 : "GigabitEthernet2/0", 4 : "GigabitEthernet3/0"}
 for As in liste_AS :
     for router in As.router :
         #debut(router.name)
@@ -100,7 +100,7 @@ for As in liste_AS :
             for i in range(router.border[0]) :
                 if router.border[i*2+1] == index :
                     neighbors_bgp.append((search_ip(router.name,neighbor,liste_AS,router.border[i*2+2]),router.border[i*2+2]))
-                    if router.igp == "OSPF" :
+                    if As.igp == "OSPF" :
                         passive_int.append(correspondance[index])
                         
                 index+=1
@@ -108,7 +108,5 @@ for As in liste_AS :
             if router != v_router :
                 neighbors_bgp.append((v_router.ip[4],As.number))
         BGP(router.name,As.number,router.id,neighbors_bgp,As.prefixes)
-        
-
-        IGP(router.name,router.id,router.igp,passive_int)
+        IGP(router.name,router.id,As.igp,passive_int)
     

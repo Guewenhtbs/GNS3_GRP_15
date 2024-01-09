@@ -26,3 +26,28 @@ ipforward-protocol nd
 no ip http server
 no ip http secure-server
 !
+ipv6 router ospf 15
+ router-id 8.8.8.8
+passive-interface FastEthernet0/0
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line vty 0 4
+ login
+!
+!
+end
