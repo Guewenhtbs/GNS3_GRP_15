@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-with open("Donnees_test.json",'r',encoding='utf-8') as f :
+with open("Donnees.json",'r',encoding='utf-8') as f :
     data = json.load(f)
 
 class AS :
@@ -129,7 +129,7 @@ liste_AS = lecture_json()
 correspondance = {1 : "FastEthernet0/0", 2 : "GigabitEthernet1/0", 3 : "GigabitEthernet2/0", 4 : "GigabitEthernet3/0"}
 for As in liste_AS :
     for router in As.router :
-        with open(f"Config_test/R{router.name}.txt", "w") as fichier:
+        with open(f"Config_finale/R{router.name}.txt", "w") as fichier:
             debut(fichier, router.name)
             interface_border = []
             for i in range(router.border[0]) :
