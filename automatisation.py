@@ -93,6 +93,6 @@ liste_AS = lecture_json()
 print(liste_AS)
 for As in liste_AS:
     for router in As.router:
-        with open(f"R{router.name}.txt", "w") as fichier:
+        with open(f"Config_test/R{router.name}.txt", "w") as fichier:
             debut(fichier, router.name)
             interfaces(fichier, router.ip, As.igp, router.name)
