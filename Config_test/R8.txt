@@ -1,0 +1,53 @@
+
+router bgp 22140
+ bgp router-id 8.8.8.8
+ bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 2023:1::1 remote-as 35131
+ neighbor 3522::10 remote-as 22140
+ neighbor 3522::10 update-source Loopback0
+ neighbor 3522::12 remote-as 22140
+ neighbor 3522::12 update-source Loopback0
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family ipv6
+  network 2200:2::/64
+  network 2200:1::/64
+  neighbor 2023:1::1 activate
+  neighbor 3522::10 activate
+  neighbor 3522::12 activate
+ exit-address-family
+!
+ipforward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+ipv6 router ospf 15
+ router-id 8.8.8.8
+passive-interface FastEthernet0/0
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line vty 0 4
+ login
+!
+!
+end

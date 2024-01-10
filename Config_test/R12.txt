@@ -1,0 +1,48 @@
+
+router bgp 22140
+ bgp router-id 12.12.12.12
+ bgp log-neighbor-changes
+ no bgp default ipv4-unicast
+ neighbor 3522::8 remote-as 22140
+ neighbor 3522::8 update-source Loopback0
+ neighbor 3522::10 remote-as 22140
+ neighbor 3522::10 update-source Loopback0
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family ipv6
+  neighbor 3522::8 activate
+  neighbor 3522::10 activate
+ exit-address-family
+!
+ipforward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+ipv6 router ospf 15
+ router-id 12.12.12.12
+!
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line vty 0 4
+ login
+!
+!
+end
