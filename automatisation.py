@@ -48,7 +48,7 @@ def lecture_json():
 def debut(fichier, name):
     now = datetime.utcnow()
     formatted_date = now.strftime("%H:%M:%S UTC %a %b %d %Y")
-    fichier.write("!\n\n!\n! Last configuration change at " + formatted_date + "\n!\nversion 15.2\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\n!\nhostame R" + str(name) + "\n!\nboot-start-marker\nboot-end-marker\n!\n!\n!\nno aaa new-model\nno ip icmp rate-limit unreachable\nip cef\n!\n!\n!\n!\n!\n!\nno ip domain lookup\nipv6 unicast-routing\nipv6 cef\n!\n!\nmultilink bundle-name authenticated\n!\n!\n!\n!\n!\n!\n!\n!\n!\nip tcp synwait-time 5\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!")
+    fichier.write("!\n\n!\n! Last configuration change at " + formatted_date + "\n!\nversion 15.2\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\n!\nhostname R" + str(name) + "\n!\nboot-start-marker\nboot-end-marker\n!\n!\n!\nno aaa new-model\nno ip icmp rate-limit unreachable\nip cef\n!\n!\n!\n!\n!\n!\nno ip domain lookup\nipv6 unicast-routing\nipv6 cef\n!\n!\nmultilink bundle-name authenticated\n!\n!\n!\n!\n!\n!\n!\n!\n!\nip tcp synwait-time 5\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!")
 
 def interfaces(fichier, ip, igp, name):
     fichier.write(f"\ninterface Loopback0\n no ip address\n ipv6 address {ip[4]}/128\n ipv6 enable")
@@ -80,8 +80,7 @@ def ospf_ou_rip(igp, fichier):
     elif igp == "RIP":
         fichier.write(f"\n ipv6 rip 15 enable\n!")
         
-def BGP(r_name,AS,r_id,neighbors_BGP,prefixes) :
-    fichier = open(f"Config_test/R{r_name}.txt","w")
+def BGP(fichier,r_name,AS,r_id,neighbors_BGP,prefixes) :
     fichier.write(f"\nrouter bgp {AS}\n bgp router-id {r_id}\n bgp log-neighbor-changes\n no bgp default ipv4-unicast")
     border = False
     for (ip,v_AS) in neighbors_BGP :
@@ -96,18 +95,16 @@ def BGP(r_name,AS,r_id,neighbors_BGP,prefixes) :
             fichier.write(f"\n  network {pref}")
     for (ip,_) in neighbors_BGP :
         fichier.write(f"\n  neighbor {ip} activate")
-    fichier.write("\n exit-address-family\n!\nipforward-protocol nd\n!\n!\nno ip http server\nno ip http secure-server\n!")
-    fichier.close()
+    fichier.write("\n exit-address-family\n!\nip forward-protocol nd\n!\n!\nno ip http server\nno ip http secure-server\n!")
 
-def IGP(r_name,r_id,igp,passive) :
-    fichier = open(f"Config_test/R{r_name}.txt","a")
+def IGP(fichier,r_name,r_id,igp,passive) :
     if igp == "RIP" :
         fichier.write(f"\nipv6 routeur rip 15\n redistribute connected")
     elif igp == "OSPF" :
         fichier.write(f"\nipv6 router ospf 15\n router-id {r_id}")
         for interface in passive :
             fichier.write(f"\npassive-interface {interface}")
-    fichier.write("\n!\n!\n!\n!\ncontrol-plane\n!\n!\nline con 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline aux 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline vty 0 4\n login\n!\n!\nend")
+    fichier.write("\n!\n!\n!\n!\ncontrol-plane\n!\n!\nline con 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline aux 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline vty 0 4\n login\n!\n!\nend\n")
 
 def search_ip(r_name,v_name,liste_AS,AS_n) :
     for As in liste_AS :
@@ -138,11 +135,10 @@ for As in liste_AS :
                         neighbors_bgp.append((search_ip(router.name,neighbor,liste_AS,router.border[i*2+2]),router.border[i*2+2]))
                         if As.igp == "OSPF" :
                             passive_int.append(correspondance[index])
-
-                    index+=1
+                index+=1
             for v_router in As.router :
                 if router != v_router :
                     neighbors_bgp.append((v_router.ip[4],As.number))
-            BGP(router.name,As.number,router.id,neighbors_bgp,As.prefixes)
-            IGP(router.name,router.id,As.igp,passive_int)
+            BGP(fichier,router.name,As.number,router.id,neighbors_bgp,As.prefixes)
+            IGP(fichier,router.name,router.id,As.igp,passive_int)
 
