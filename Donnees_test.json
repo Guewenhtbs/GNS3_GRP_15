@@ -10,7 +10,7 @@
             {
                 "R_name" : 2,
                 "voisins" : [null, null, 5, null],
-                "ip_address" : [null,null,"3500:2::1",null,"3522::2"],
+                "ip_address" : [null,null,"3500:1::1",null,"3522::2"],
                 "border" : [0]
             },
 
