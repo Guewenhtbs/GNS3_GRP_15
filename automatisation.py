@@ -48,9 +48,6 @@ def lecture_json():
 ##############MAIN#############
 lecture_json()
 
-
-from datetime import datetime
-
 def debut(fichier, name):
     now = datetime.utcnow()
     formatted_date = now.strftime("%H:%M:%S UTC %a %b %d %Y")
@@ -78,10 +75,7 @@ def interfaces(fichier, ip, igp, name):
 
 def aux_interfaces(fichier, adresse, igp):
     fichier.write(f"\n no ip address\n negotiation auto\n ipv6 address {adresse}/64\n ipv6 enable")
-    if igp == "OSPF":
-        fichier.write(f"\n ipv6 ospf 15 area 0\n!")
-    if igp == "RIP":
-        fichier.write(f"\n ipv6 rip 15 enable\n!")
+    ospf_ou_rip(igp, fichier)
 
 def ospf_ou_rip(igp, fichier):
     if igp == "OSPF":
