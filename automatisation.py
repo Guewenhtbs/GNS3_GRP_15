@@ -1,5 +1,7 @@
 import json
 from datetime import datetime
+import os
+import uuid
 
 with open("Donnees_test.json",'r',encoding='utf-8') as f :
     data = json.load(f)
@@ -119,9 +121,8 @@ def search_ip(r_name,v_name,liste_AS,AS_n) :
                             return router.ip[index]
     print("IP non trouvé")
     return None
-  
-##############MAIN#############
 
+##############MAIN#############
 liste_AS = lecture_json()
 correspondance = {1 : "FastEthernet0/0", 2 : "GigabitEthernet1/0", 3 : "GigabitEthernet2/0", 4 : "GigabitEthernet3/0"}
 for As in liste_AS :
