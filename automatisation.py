@@ -58,10 +58,7 @@ def debut(fichier, name):
 
 def interfaces(fichier, ip, igp, name):
     fichier.write(f"\ninterface Loopback0\n no ip address\n ipv6 address {ip[4]}/128\n ipv6 enable")
-    if igp == "OSPF":
-        fichier.write(f"\n ipv6 ospf 15 area 0\n!")
-    if igp == "RIP":
-        fichier.write(f"\n ipv6 rip 15 enable\n!")
+    ospf_ou_rip(igp, fichier)
 
     nom_interface = ["FastEthernet0/0", "GigabitEthernet1/0", "GigabitEthernet2/0", "GigabitEthernet3/0"]
 
@@ -70,10 +67,7 @@ def interfaces(fichier, ip, igp, name):
         fichier.write("\n no ip address\n shutdown\n duplex full\n!")
     else:
         fichier.write(f"\n no ip address\n duplex full\n ipv6 address {ip[0]}/64\n ipv6 enable")
-        if igp == "OSPF":
-            fichier.write(f"\n ipv6 ospf 15 area 0\n!")
-        if igp == "RIP":
-            fichier.write(f"\n ipv6 rip 15 enable\n!")
+        ospf_ou_rip(igp, fichier)
 
     for i in range(1, len(nom_interface)):
         fichier.write(f"\ninterface {nom_interface[i]}")
@@ -87,6 +81,12 @@ def aux_interfaces(fichier, adresse, igp):
     if igp == "OSPF":
         fichier.write(f"\n ipv6 ospf 15 area 0\n!")
     if igp == "RIP":
+        fichier.write(f"\n ipv6 rip 15 enable\n!")
+
+def ospf_ou_rip(igp, fichier):
+    if igp == "OSPF":
+        fichier.write(f"\n ipv6 ospf 15 area 0\n!")
+    elif igp == "RIP":
         fichier.write(f"\n ipv6 rip 15 enable\n!")
 
 liste_AS = lecture_json()
