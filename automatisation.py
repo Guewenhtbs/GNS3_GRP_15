@@ -50,39 +50,41 @@ def debut(fichier, name):
     formatted_date = now.strftime("%H:%M:%S UTC %a %b %d %Y")
     fichier.write("!\n\n!\n! Last configuration change at " + formatted_date + "\n!\nversion 15.2\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\n!\nhostname R" + str(name) + "\n!\nboot-start-marker\nboot-end-marker\n!\n!\n!\nno aaa new-model\nno ip icmp rate-limit unreachable\nip cef\n!\n!\n!\n!\n!\n!\nno ip domain lookup\nipv6 unicast-routing\nipv6 cef\n!\n!\nmultilink bundle-name authenticated\n!\n!\n!\n!\n!\n!\n!\n!\n!\nip tcp synwait-time 5\n! \n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!")
 
-def interfaces(fichier, ip, igp,border):
+def interfaces(fichier, ip, igp,interface_border):
     fichier.write(f"\ninterface Loopback0\n no ip address\n ipv6 address {ip[4]}/128\n ipv6 enable")
     ospf_ou_rip(igp, fichier)
 
     nom_interface = ["FastEthernet0/0", "GigabitEthernet1/0", "GigabitEthernet2/0", "GigabitEthernet3/0"]
 
-    fichier.write(f"\ninterface {nom_interface[0]}")
+    fichier.write(f"\n!\ninterface {nom_interface[0]}")
     if ip[0] is None:
         fichier.write("\n no ip address\n shutdown\n duplex full\n!")
     else:
         fichier.write(f"\n no ip address\n duplex full\n ipv6 address {ip[0]}/64\n ipv6 enable")
-        if 1 in border or igp == "OSPF":
+        if 1 not in interface_border or igp == "OSPF":
             ospf_ou_rip(igp, fichier)
+        fichier.write("\n!")
     for i in range(1, len(nom_interface)):
         fichier.write(f"\ninterface {nom_interface[i]}")
         if ip[i] is None:
             fichier.write("\n no ip address\n shutdown\n negotiation auto\n!")
         else:
             border = False
-            if i+1 in border :
+            if i+1 in interface_border :
                 border = True
-            aux_interfaces(fichier, ip[i], igp,)
+            aux_interfaces(fichier, ip[i], igp,border)
 
 def aux_interfaces(fichier, adresse, igp, border):
     fichier.write(f"\n no ip address\n negotiation auto\n ipv6 address {adresse}/64\n ipv6 enable")
     if border == False or igp == "OSPF":
         ospf_ou_rip(igp, fichier)
+    fichier.write("\n!")
 
 def ospf_ou_rip(igp, fichier):
     if igp == "OSPF":
-        fichier.write(f"\n ipv6 ospf 15 area 0\n!")
+        fichier.write(f"\n ipv6 ospf 15 area 0")
     elif igp == "RIP":
-        fichier.write(f"\n ipv6 rip 15 enable\n!")
+        fichier.write(f"\n ipv6 rip 15 enable")
         
 def BGP(fichier,AS,r_id,neighbors_BGP,prefixes) :
     fichier.write(f"\nrouter bgp {AS}\n bgp router-id {r_id}\n bgp log-neighbor-changes\n no bgp default ipv4-unicast")
