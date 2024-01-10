@@ -1,13 +1,13 @@
 !
 
 !
-! Last configuration change at 07:57:22 UTC Wed Jan 10 2024
+! Last configuration change at 08:08:34 UTC Wed Jan 10 2024
 !
 version 15.2
 service timestamps debug datetime msec
 service timestamps log datetime msec
 !
-hostame R7
+hostname R7
 !
 boot-start-marker
 boot-end-marker
@@ -39,7 +39,7 @@ multilink bundle-name authenticated
 !
 !
 ip tcp synwait-time 5
-!
+! 
 !
 !
 !
@@ -102,13 +102,13 @@ router bgp 35131
   neighbor 3522::5 activate
  exit-address-family
 !
-ipforward-protocol nd
+ip forward-protocol nd
 !
 !
 no ip http server
 no ip http secure-server
 !
-ipv6 routeur rip 15
+ipv6 router rip 15
  redistribute connected
 !
 !
