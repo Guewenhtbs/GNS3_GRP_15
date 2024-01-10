@@ -17,7 +17,6 @@ chemin_dossier_destination = 'C:/Users/pc/Downloads/projet gns3 fin TD2/projet g
 
 # Parcourir tous les fichiers du dossier source
 for nom_fic in os.listdir(chemin_dossier_source):
-    print(nom_fic)
     # Vérifier si le fichier est un fichier .txt
     if nom_fic.endswith('.txt'):
         # Extraire le numéro du nom de fichier
@@ -37,11 +36,20 @@ for nom_fic in os.listdir(chemin_dossier_source):
             # Chemin complet du fichier texte source
             chemin_source = os.path.join(chemin_dossier_source, nom_fic)
             
-            # Chemin complet du fichier texte de destination
-            chemin_destination = os.path.join(chemin_dossier_correspondant, nom_fic)
+            # Chemin complet du dossier "configs" dans le dossier correspondant à l'UUID
+            chemin_configs = os.path.join(chemin_dossier_correspondant, 'configs')
             
-            # Déplacer le fichier texte vers le dossier correspondant
-            shutil.move(chemin_source, chemin_destination)
+            # Chemin complet du fichier texte de destination dans le dossier "configs"
+            chemin_destination = os.path.join(chemin_configs)
+            
+            if os.path.exists(chemin_destination):
+                try:
+                    os.remove(chemin_destination)  # Supprimer le fichier existant
+                    print(f"Fichier existant à {chemin_destination} supprimé.")
+                except PermissionError as e:
+                    print(f"Impossible de supprimer le fichier existant à {chemin_destination}: {e}")
+            else:
+                print(f"Aucun fichier existant à {chemin_destination}.")
             print(f"Fichier {nom_fic} déplacé vers {chemin_dossier_correspondant}")
 
 # récupérer le numéro du routeur avec le nom final
