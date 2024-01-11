@@ -23,11 +23,7 @@ nom_fichier = {
 chemin_dossier_source = 'C:/Users/pc/OneDrive/Documents/GNS3/GNS3_GRP_15/Config_finale'  # Remplacez cela par votre chemin réel
 
 # Chemin du dossier de destination principal
-chemin_dossier_destination = 'C:/Users/pc/OneDrive/Documents/projet gns3 fin TD2/projet gns3 fin TD2/project-files/dynamips'
-
-# Vérifier si le dossier de destination existe, sinon le créer
-if not os.path.exists(chemin_dossier_destination):
-    os.makedirs(chemin_dossier_destination)
+chemin_dossier_destination = "C:/Users/pc/OneDrive/Documents/projet gns3 fin TD2/projet gns3 fin TD2/project-files/dynamips"
 
 for nom_fic in os.listdir(chemin_dossier_source):
     if nom_fic.endswith('.cfg') and nom_fic.startswith('i'):
@@ -38,16 +34,8 @@ for nom_fic in os.listdir(chemin_dossier_source):
 
         if numero in nom_fichier:
             correspondance = nom_fichier[numero]
-
             chemin_dossier_correspondant = os.path.join(chemin_dossier_destination, correspondance)
             chemin_configs = os.path.join(chemin_dossier_correspondant, 'configs')
-
-            # Vérifier si les dossiers existent, sinon les créer
-            if not os.path.exists(chemin_dossier_correspondant):
-                os.makedirs(chemin_dossier_correspondant)
-            if not os.path.exists(chemin_configs):
-                os.makedirs(chemin_configs)
-
             chemin_destination = os.path.join(chemin_configs, nom_fic)
 
             # Déplacer le fichier source vers le dossier "configs"
