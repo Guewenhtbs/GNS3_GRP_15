@@ -150,3 +150,4 @@ for As in liste_AS :
                     neighbors_bgp.append((v_router.ip[4],As.number))
             BGP(fichier,As.number,router.id,neighbors_bgp,As.prefixes)
             IGP(fichier,router.id,As.igp,passive_int)
+
