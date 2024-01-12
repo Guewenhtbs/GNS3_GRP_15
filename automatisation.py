@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-with open("Donnees.json",'r',encoding='utf-8') as f :
+with open("Donnees_test.json",'r',encoding='utf-8') as f :
     data = json.load(f)
 
 class AS :
@@ -52,7 +52,7 @@ def debut(fichier, name):
 
 def interfaces(fichier, ip, igp,interface_border):
     fichier.write(f"\ninterface Loopback0\n no ip address\n ipv6 address {ip[4]}/128\n ipv6 enable")
-    ospf_ou_rip(igp, fichier)
+    ospf_ou_rip(igp, fichier,ip)
 
     nom_interface = ["FastEthernet0/0", "GigabitEthernet1/0", "GigabitEthernet2/0", "GigabitEthernet3/0"]
 
@@ -62,7 +62,7 @@ def interfaces(fichier, ip, igp,interface_border):
     else:
         fichier.write(f"\n no ip address\n duplex full\n ipv6 address {ip[0]}/64\n ipv6 enable")
         if 1 not in interface_border or igp == "OSPF":
-            ospf_ou_rip(igp, fichier)
+            ospf_ou_rip(igp, fichier, ip[0])
         fichier.write("\n!")
     for i in range(1, len(nom_interface)):
         fichier.write(f"\ninterface {nom_interface[i]}")
@@ -77,12 +77,15 @@ def interfaces(fichier, ip, igp,interface_border):
 def aux_interfaces(fichier, adresse, igp, border):
     fichier.write(f"\n no ip address\n negotiation auto\n ipv6 address {adresse}/64\n ipv6 enable")
     if border == False or igp == "OSPF":
-        ospf_ou_rip(igp, fichier)
+        ospf_ou_rip(igp, fichier, adresse)
     fichier.write("\n!")
 
-def ospf_ou_rip(igp, fichier):
+def ospf_ou_rip(igp, fichier,ip):
     if igp == "OSPF":
         fichier.write(f"\n ipv6 ospf 15 area 0")
+        if ip[1]!=None:
+            fichier.write(f"\n ipv6 ospf cost {ip[1]}")
+
     elif igp == "RIP":
         fichier.write(f"\n ipv6 rip 15 enable")
         
