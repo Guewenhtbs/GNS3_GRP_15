@@ -40,14 +40,14 @@
             {
                 "R_name" : 8,
                 "voisins" : [7, 10, null, null],
-                "ip_address" : [["2023:1::2",null],["2200:2::2",null],null,null,["3522::8",5311]],
+                "ip_address" : [["2023:1::2",772],["2200:2::2",null],null,null,["3522::8",5311]],
                 "border" : [1,1,35131]
             },
 
             {
                 "R_name" : 10,
                 "voisins" : [12, null, 8, null],
-                "ip_address" : [["2200:1::2",null],null,["2200:2::1",null],null,["3522::10",null]],
+                "ip_address" : [["2200:1::2",null],null,["2200:2::1",8900],null,["3522::10",null]],
                 "border" : [0]
             },
 
