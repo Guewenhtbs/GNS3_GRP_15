@@ -51,12 +51,11 @@ def debut(fichier, name):
     fichier.write("!\n\n!\n! Last configuration change at " + formatted_date + "\n!\nversion 15.2\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\n!\nhostname R" + str(name) + "\n!\nboot-start-marker\nboot-end-marker\n!\n!\n!\nno aaa new-model\nno ip icmp rate-limit unreachable\nip cef\n!\n!\n!\n!\n!\n!\nno ip domain lookup\nipv6 unicast-routing\nipv6 cef\n!\n!\nmultilink bundle-name authenticated\n!\n!\n!\n!\n!\n!\n!\n!\n!\nip tcp synwait-time 5\n! \n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!")
 
 def interfaces(fichier, ip, igp,interface_border):
-    if igp == "RIP" :
-        fichier.write(f"\ninterface Loopback0\n no ip address\n ipv6 address {ip[4]}/128\n ipv6 enable")
-        ospf_ou_rip(igp, fichier,ip[4])
-    if igp == "OSPf" :
-        fichier.write(f"\ninterface Loopback0\n no ip address\n ipv6 address {ip[4][0]}/128\n ipv6 enable")
-        ospf_ou_rip(igp, fichier,ip[4])
+    fichier.write(f"\ninterface Loopback0\n no ip address\n ipv6 address {ip[4]}/128\n ipv6 enable")
+    if igp == "OSPF":
+        fichier.write(f"\n ipv6 ospf 15 area 0")
+    elif igp == "RIP":
+        fichier.write(f"\n ipv6 rip 15 enable")
 
     nom_interface = ["FastEthernet0/0", "GigabitEthernet1/0", "GigabitEthernet2/0", "GigabitEthernet3/0"]
 
@@ -64,10 +63,14 @@ def interfaces(fichier, ip, igp,interface_border):
     if ip[0] is None:
         fichier.write("\n no ip address\n shutdown\n duplex full\n!")
     else:
-        fichier.write(f"\n no ip address\n duplex full\n ipv6 address {ip[0][0]}/64\n ipv6 enable")
+        if igp == "RIP" :
+            fichier.write(f"\n no ip address\n duplex full\n ipv6 address {ip[0]}/64\n ipv6 enable")
+        if igp == "OSPF" :
+            fichier.write(f"\n no ip address\n duplex full\n ipv6 address {ip[0][0]}/64\n ipv6 enable")
         if 1 not in interface_border or igp == "OSPF":
             ospf_ou_rip(igp, fichier, ip[0])
         fichier.write("\n!")
+
     for i in range(1, len(nom_interface)):
         fichier.write(f"\ninterface {nom_interface[i]}")
         if ip[i] is None:
@@ -79,7 +82,12 @@ def interfaces(fichier, ip, igp,interface_border):
             aux_interfaces(fichier, ip[i], igp,border)
 
 def aux_interfaces(fichier, adresse, igp, border):
-    fichier.write(f"\n no ip address\n negotiation auto\n ipv6 address {adresse[0]}/64\n ipv6 enable")
+    if igp == "RIP" : 
+        fichier.write(f"\n no ip address\n negotiation auto\n ipv6 address {adresse}/64\n ipv6 enable")
+    
+    if igp == "OSPF" :
+        fichier.write(f"\n no ip address\n negotiation auto\n ipv6 address {adresse[0]}/64\n ipv6 enable")
+    
     if border == False or igp == "OSPF":
         ospf_ou_rip(igp, fichier, adresse)
     fichier.write("\n!")
@@ -99,16 +107,16 @@ def BGP(fichier,AS,r_id,neighbors_BGP,prefixes) :
     border = False
     for (ip,v_AS) in neighbors_BGP :
         if v_AS == AS :
-            fichier.write(f"\n neighbor {ip[0]} remote-as {v_AS}\n neighbor {ip[0]} update-source Loopback0")
+            fichier.write(f"\n neighbor {ip} remote-as {v_AS}\n neighbor {ip} update-source Loopback0")
         else :
-            fichier.write(f"\n neighbor {ip[0]} remote-as {v_AS}")
+            fichier.write(f"\n neighbor {ip} remote-as {v_AS}")
             border = True
     fichier.write("\n !\n address-family ipv4\n exit-address-family\n !\n address-family ipv6")
     if border == True :
         for pref in prefixes :
             fichier.write(f"\n  network {pref}")
     for (ip,_) in neighbors_BGP :
-        fichier.write(f"\n  neighbor {ip[0]} activate")
+        fichier.write(f"\n  neighbor {ip} activate")
     fichier.write("\n exit-address-family\n!\nip forward-protocol nd\n!\n!\nno ip http server\nno ip http secure-server\n!")
 
 def IGP(fichier,r_id,igp,passive) :
@@ -127,7 +135,10 @@ def search_ip(r_name,v_name,liste_AS,AS_n) :
                 if router.name == v_name :
                     for index in range(4):
                         if router.neighbors[index] == r_name :
-                            return router.ip[index]
+                            if As.igp == "OSPF" :
+                                return router.ip[index][0]
+                            else :
+                                return router.ip[index]
     print("IP non trouvé")
     return None
   
