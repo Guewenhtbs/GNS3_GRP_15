@@ -1,0 +1,129 @@
+{
+    "AS" : [
+        {
+            "AS_number" : "75000",
+            "IGP" : "RIP",
+            "voisinage" : ["35131","22140"],
+            "prefixes" : [],
+            "routeur" : [
+                {
+                    "R_name" : 1,
+                    "voisins" : [null, 2, 6, null],
+                    "ip_address" : [null,"3522:1::1","3522:2::1",null,"7500:7500::1"],
+                    "border" : [2,2,35131,3,22140]
+                }
+            ]
+        },
+
+        {
+            "AS_number" : "35131",
+            "IGP" : "RIP",
+            "voisinage" : ["75000","22140","35000","35150"],
+            "prefixes" : ["3513:1::/64","3513:2::/64","3513:3::/64","3513:4::/64"],
+            "routeur" : [
+                {
+                    "R_name" : 2,
+                    "voisins" : [1, 3, 4, null],
+                    "ip_address" : ["3522:1::2","3513:1::1","3513:4::1",null,"3513:3513::2"],
+                    "border" : [1,1,75000]
+                },
+                {
+                    "R_name" : 3,
+                    "voisins" : [2, 10, 5, null],
+                    "ip_address" : ["3513:1::2","3522:6::1","3513:2::1",null,"3513:3513::3"],
+                    "border" : [1,2,35000]
+                },
+                {
+                    "R_name" : 4,
+                    "voisins" : [2, 5, 7, null],
+                    "ip_address" : ["3513:4::2","3513:3::1","3522:3::1",null,"3513:3513::4"],
+                    "border" : [1,3,22140]
+                },
+                {
+                    "R_name" : 5,
+                    "voisins" : [3, 4, 11, null],
+                    "ip_address" : ["3513:2::2","3513:3::2","3522:5::1",null,"3513:3513::5"],
+                    "border" : [1,3,35150]
+                }
+            ]
+        },
+        
+        {
+            "AS_number" : "22140",
+            "IGP" : "OSPF",
+            "voisinage" : ["75000","35131","22000"],
+            "prefixes" : ["2214:1::/64","2214:2::/64","2214:3::/64","2214:4::/64"],
+            "routeur" : [
+                {
+                    "R_name" : 6,
+                    "voisins" : [1, 7, 8, null],
+                    "ip_address" : ["3522:2::2","2214:1::1","2214:4::1",null,"2214:2214::6"],
+                    "border" : [1,1,75000]
+                },
+                {
+                    "R_name" : 7,
+                    "voisins" : [6, 4, 9, null],
+                    "ip_address" : ["2214:1::2","3522:3::2","2214:2::1",null,"2214:2214::7"],
+                    "border" : [1,2,35131]
+                },
+                {
+                    "R_name" : 8,
+                    "voisins" : [6, 9, null, null],
+                    "ip_address" : ["2214:4::2","2214:3::1",null,null,"2214:2214::8"],
+                    "border" : [0]
+                },
+                {
+                    "R_name" : 9,
+                    "voisins" : [7, 8, 12, null],
+                    "ip_address" : ["2214:2::2","2214:3::2","3522:4::1",null,"2214:2214::9"],
+                    "border" : [1,3,22000]
+                }
+            ]
+        },
+
+        {
+            "AS_number" : "35000",
+            "IGP" : "RIP",
+            "voisinage" : ["35131"],
+            "prefixes" : [],
+            "routeur" : [
+                {
+                    "R_name" : 10,
+                    "voisins" : [3, null, null, null],
+                    "ip_address" : ["3522:6::2",null,null,null,"3500:3500::10"],
+                    "border" : [1,1,35131]
+                }
+            ]
+        },
+
+        {
+            "AS_number" : "35150",
+            "IGP" : "RIP",
+            "voisinage" : ["35131"],
+            "prefixes" : [],
+            "routeur" : [
+                {
+                    "R_name" : 11,
+                    "voisins" : [5, null, null, null],
+                    "ip_address" : ["3522:5::2",null,null,null,"3515:3515::11"],
+                    "border" : [1,1,35131]
+                }
+            ]
+        },
+
+        {
+            "AS_number" : "22000",
+            "IGP" : "RIP",
+            "voisinage" : ["22140"],
+            "prefixes" : [],
+            "routeur" : [
+                {
+                    "R_name" : 12,
+                    "voisins" : [9, null, null, null],
+                    "ip_address" : ["3522:4::2",null,null,null,"2200:2200::12"],
+                    "border" : [1,1,22140]
+                }
+            ]
+        }
+    ]
+}
