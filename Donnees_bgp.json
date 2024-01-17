@@ -4,7 +4,7 @@
             "AS_number" : "75000",
             "IGP" : "RIP",
             "voisinage" : ["35131","22140"],
-            "prefixes" : [],
+            "prefixes" : ["3522:1::/64","3522:2::/64"],
             "routeur" : [
                 {
                     "R_name" : 1,
@@ -85,7 +85,7 @@
             "AS_number" : "35000",
             "IGP" : "RIP",
             "voisinage" : ["35131"],
-            "prefixes" : [],
+            "prefixes" : ["3522:6::/64"],
             "routeur" : [
                 {
                     "R_name" : 10,
@@ -100,7 +100,7 @@
             "AS_number" : "35150",
             "IGP" : "RIP",
             "voisinage" : ["35131"],
-            "prefixes" : [],
+            "prefixes" : ["3522:5::/64"],
             "routeur" : [
                 {
                     "R_name" : 11,
@@ -115,7 +115,7 @@
             "AS_number" : "22000",
             "IGP" : "RIP",
             "voisinage" : ["22140"],
-            "prefixes" : [],
+            "prefixes" : ["3522:4::/64"],
             "routeur" : [
                 {
                     "R_name" : 12,
