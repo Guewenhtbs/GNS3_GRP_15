@@ -51,8 +51,12 @@ def debut(fichier, name):
     fichier.write("!\n\n!\n! Last configuration change at " + formatted_date + "\n!\nversion 15.2\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\n!\nhostname R" + str(name) + "\n!\nboot-start-marker\nboot-end-marker\n!\n!\n!\nno aaa new-model\nno ip icmp rate-limit unreachable\nip cef\n!\n!\n!\n!\n!\n!\nno ip domain lookup\nipv6 unicast-routing\nipv6 cef\n!\n!\nmultilink bundle-name authenticated\n!\n!\n!\n!\n!\n!\n!\n!\n!\nip tcp synwait-time 5\n! \n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!")
 
 def interfaces(fichier, ip, igp,interface_border):
-    fichier.write(f"\ninterface Loopback0\n no ip address\n ipv6 address {ip[4][0]}/128\n ipv6 enable")
-    ospf_ou_rip(igp, fichier,ip[4])
+    if igp == "RIP" :
+        fichier.write(f"\ninterface Loopback0\n no ip address\n ipv6 address {ip[4]}/128\n ipv6 enable")
+        ospf_ou_rip(igp, fichier,ip[4])
+    if igp == "OSPf" :
+        fichier.write(f"\ninterface Loopback0\n no ip address\n ipv6 address {ip[4][0]}/128\n ipv6 enable")
+        ospf_ou_rip(igp, fichier,ip[4])
 
     nom_interface = ["FastEthernet0/0", "GigabitEthernet1/0", "GigabitEthernet2/0", "GigabitEthernet3/0"]
 
@@ -89,7 +93,7 @@ def ospf_ou_rip(igp, fichier,ip):
 
     elif igp == "RIP":
         fichier.write(f"\n ipv6 rip 15 enable")
-        
+
 def BGP(fichier,AS,r_id,neighbors_BGP,prefixes) :
     fichier.write(f"\nrouter bgp {AS}\n bgp router-id {r_id}\n bgp log-neighbor-changes\n no bgp default ipv4-unicast")
     border = False
