@@ -92,6 +92,7 @@ def BGP(fichier,AS,r_id,neighbors_BGP,prefixes) :
     for (ip,v_AS) in neighbors_BGP :
         if v_AS == AS :
             fichier.write(f"\n neighbor {ip} remote-as {v_AS}\n neighbor {ip} update-source Loopback0")
+            fichier.write(f"\n neighbor {ip} send-community")
         else :
             fichier.write(f"\n neighbor {ip} remote-as {v_AS}")
             border = True
@@ -101,7 +102,7 @@ def BGP(fichier,AS,r_id,neighbors_BGP,prefixes) :
             fichier.write(f"\n  network {pref}")
     for (ip,_) in neighbors_BGP :
         fichier.write(f"\n  neighbor {ip} activate")
-    fichier.write("\n exit-address-family\n!\nip forward-protocol nd\n!\n!\nno ip http server\nno ip http secure-server\n!")
+    fichier.write("\n exit-address-family\n!\nip forward-protocol nd\n!\nip bgp-community new-format\nip community-list standard client permit {AS}:150\nip community-list standard free_peer permit {AS}:120\nip community-list standard provider permit {AS}:50\n!\nno ip http server\nno ip http secure-server\n!")
 
 def IGP(fichier,r_id,igp,passive) :
     if igp == "RIP" :
