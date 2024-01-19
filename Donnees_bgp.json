@@ -3,7 +3,7 @@
         {
             "AS_number" : "75000",
             "IGP" : "RIP",
-            "voisinage" : ["35131","22140"],
+            "voisinage" : {"35131" : "client","22140" : "client"},
             "prefixes" : ["3522:1::/64","3522:2::/64"],
             "routeur" : [
                 {
@@ -18,7 +18,7 @@
         {
             "AS_number" : "35131",
             "IGP" : "RIP",
-            "voisinage" : ["75000","22140","35000","35150"],
+            "voisinage" : {"75000" : "provider","22140" : "free_peer","35000" : "client","35150" : "client"},
             "prefixes" : ["3513:1::/64","3513:2::/64","3513:3::/64","3513:4::/64"],
             "routeur" : [
                 {
@@ -51,7 +51,7 @@
         {
             "AS_number" : "22140",
             "IGP" : "OSPF",
-            "voisinage" : ["75000","35131","22000"],
+            "voisinage" : {"75000" : "provider","35131" : "free_peer","22000" : "client"},
             "prefixes" : ["2214:1::/64","2214:2::/64","2214:3::/64","2214:4::/64"],
             "routeur" : [
                 {
@@ -84,7 +84,7 @@
         {
             "AS_number" : "35000",
             "IGP" : "RIP",
-            "voisinage" : ["35131"],
+            "voisinage" : {"35131" : "provider"},
             "prefixes" : ["3522:6::/64"],
             "routeur" : [
                 {
@@ -99,7 +99,7 @@
         {
             "AS_number" : "35150",
             "IGP" : "RIP",
-            "voisinage" : ["35131"],
+            "voisinage" : {"35131" : "provider"},
             "prefixes" : ["3522:5::/64"],
             "routeur" : [
                 {
@@ -114,7 +114,7 @@
         {
             "AS_number" : "22000",
             "IGP" : "RIP",
-            "voisinage" : ["22140"],
+            "voisinage" : {"22140" : "provider"},
             "prefixes" : ["3522:4::/64"],
             "routeur" : [
                 {

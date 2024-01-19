@@ -87,12 +87,11 @@ def ospf_ou_rip(igp, fichier):
         fichier.write(f"\n ipv6 rip 15 enable")
         
 def BGP(fichier,AS,r_id,neighbors_BGP,prefixes) :
-    fichier.write(f"\nrouter bgp {AS}\n bgp router-id {r_id}\n bgp log-neighbor-changes\n no bgp default ipv4-unicast")
+    fichier.write(f"\nrouter bgp {AS.number}\n bgp router-id {r_id}\n bgp log-neighbor-changes\n no bgp default ipv4-unicast")
     border = False
     for (ip,v_AS) in neighbors_BGP :
-        if v_AS == AS :
+        if v_AS == AS.number :
             fichier.write(f"\n neighbor {ip} remote-as {v_AS}\n neighbor {ip} update-source Loopback0")
-            fichier.write(f"\n neighbor {ip} send-community")
         else :
             fichier.write(f"\n neighbor {ip} remote-as {v_AS}")
             border = True
@@ -100,8 +99,14 @@ def BGP(fichier,AS,r_id,neighbors_BGP,prefixes) :
     if border == True :
         for pref in prefixes :
             fichier.write(f"\n  network {pref}")
-    for (ip,_) in neighbors_BGP :
+    for (ip,v_AS) in neighbors_BGP :
         fichier.write(f"\n  neighbor {ip} activate")
+        if v_AS == AS.number :
+            fichier.write(f"\n  neighbor {ip} send-community")
+        else :
+            fichier.write(f"\n neighbor {ip} route-map tag_{AS.neighbors[str(v_AS)]} in")
+            if AS.neighbors[str(v_AS)] != "client" :
+                fichier.write(f"\n neighbor {ip} route-map block_{AS.neighbors[str(v_AS)]} out")
     fichier.write("\n exit-address-family\n!\nip forward-protocol nd\n!\nip bgp-community new-format\nip community-list standard client permit {AS}:150\nip community-list standard free_peer permit {AS}:120\nip community-list standard provider permit {AS}:50\n!\nno ip http server\nno ip http secure-server\n!")
 
 def IGP(fichier,r_id,igp,passive) :
@@ -150,6 +155,6 @@ for As in liste_AS :
             for v_router in As.router :
                 if router != v_router :
                     neighbors_bgp.append((v_router.ip[4],As.number))
-            BGP(fichier,As.number,router.id,neighbors_bgp,As.prefixes)
+            BGP(fichier,As,router.id,neighbors_bgp,As.prefixes)
             IGP(fichier,router.id,As.igp,passive_int)
 
