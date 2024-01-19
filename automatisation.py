@@ -98,7 +98,7 @@ def BGP(fichier,AS,r_id,neighbors_BGP,prefixes) :
     fichier.write("\n !\n address-family ipv4\n exit-address-family\n !\n address-family ipv6")
     if border == True :
         for pref in prefixes :
-            fichier.write(f"\n  network {pref}")
+            fichier.write(f"\n  network {pref} route-map tag_client")
     for (ip,v_AS) in neighbors_BGP :
         fichier.write(f"\n  neighbor {ip} activate")
         if v_AS == AS.number :
@@ -122,12 +122,11 @@ def route_map(fichier,neighbors_BGP,AS) :
     for (_,v_AS) in neighbors_BGP :
         print ()
         if v_AS != AS.number :           
-            if AS.neighbors[str(v_AS)] == "client" :
-                fichier.write(f"\nroute-map tag_client permit 50\n set local-preference 150\n set community 35131:150")
+            fichier.write(f"\nroute-map tag_client permit 50\n set local-preference 150\n set community 35131:150")
             if AS.neighbors[str(v_AS)] == "free_peer" :
-                fichier.write(f"\nroute-map tag_free_peer permit 50\n set local-preference 120\n set community 35131:120\n!\nroute-map block_free_peer deny 50\n match community 35131:50\n!\nroute-map block_free_peer deny 51\n match community 35131:120\n!\nroute-map block_free_peer permit 600")
+                fichier.write(f"\n!\nroute-map tag_free_peer permit 50\n set local-preference 120\n set community 35131:120\n!\nroute-map block_free_peer permit 50\n match community 35131:150")
             if AS.neighbors[str(v_AS)] == "provider" :
-                fichier.write(f"\nroute-map tag_provider permit 50\n set local-preference 50\n set community 35131:50\n!\nroute-map block_provider deny 50\n match community 35131:50\n!\nroute-map block_provider deny 51\n match community 35131:120\n!\nroute-map block_provider permit 600")
+                fichier.write(f"\n!\nroute-map tag_provider permit 50\n set local-preference 50\n set community 35131:50\n!\nroute-map block_provider permit 50\n match community 35131:150")
     fichier.write("\n!\n!\n!\ncontrol-plane\n!\n!\nline con 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline aux 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline vty 0 4\n login\n!\n!\nend\n")
 def search_ip(r_name,v_name,liste_AS,AS_n) :
     for As in liste_AS :
