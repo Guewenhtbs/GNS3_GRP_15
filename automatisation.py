@@ -104,10 +104,10 @@ def BGP(fichier,AS,r_id,neighbors_BGP,prefixes) :
         if v_AS == AS.number :
             fichier.write(f"\n  neighbor {ip} send-community")
         else :
-            fichier.write(f"\n neighbor {ip} route-map tag_{AS.neighbors[str(v_AS)]} in")
+            fichier.write(f"\n  neighbor {ip} route-map tag_{AS.neighbors[str(v_AS)]} in")
             if AS.neighbors[str(v_AS)] != "client" :
-                fichier.write(f"\n neighbor {ip} route-map block_{AS.neighbors[str(v_AS)]} out")
-    fichier.write("\n exit-address-family\n!\nip forward-protocol nd\n!\nip bgp-community new-format\nip community-list standard client permit {AS}:150\nip community-list standard free_peer permit {AS}:120\nip community-list standard provider permit {AS}:50\n!\nno ip http server\nno ip http secure-server\n!")
+                fichier.write(f"\n  neighbor {ip} route-map block_{AS.neighbors[str(v_AS)]} out")
+    fichier.write(f"\n exit-address-family\n!\nip forward-protocol nd\n!\nip bgp-community new-format\nip community-list standard client permit {AS.number}:150\nip community-list standard free_peer permit {AS.number}:120\nip community-list standard provider permit {AS.number}:50\n!\nno ip http server\nno ip http secure-server\n!")
 
 def IGP(fichier,r_id,igp,passive) :
     if igp == "RIP" :
@@ -116,8 +116,19 @@ def IGP(fichier,r_id,igp,passive) :
         fichier.write(f"\nipv6 router ospf 15\n router-id {r_id}")
         for interface in passive :
             fichier.write(f"\n passive-interface {interface}")
-    fichier.write("\n!\n!\n!\n!\ncontrol-plane\n!\n!\nline con 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline aux 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline vty 0 4\n login\n!\n!\nend\n")
+    fichier.write("\n!\n!")
 
+def route_map(fichier,neighbors_BGP,AS) :
+    for (_,v_AS) in neighbors_BGP :
+        print ()
+        if v_AS != AS.number :           
+            if AS.neighbors[str(v_AS)] == "client" :
+                fichier.write(f"\nroute-map tag_client permit 50\n set local-preference 150\n set community 35131:150")
+            if AS.neighbors[str(v_AS)] == "free_peer" :
+                fichier.write(f"\nroute-map tag_free_peer permit 50\n set local-preference 120\n set community 35131:120\n!\nroute-map block_free_peer deny 50\n match community 35131:50\n!\nroute-map block_free_peer deny 51\n match community 35131:120\n!\nroute-map block_free_peer permit 600")
+            if AS.neighbors[str(v_AS)] == "provider" :
+                fichier.write(f"\nroute-map tag_provider permit 50\n set local-preference 50\n set community 35131:50\n!\nroute-map block_provider deny 50\n match community 35131:50\n!\nroute-map block_provider deny 51\n match community 35131:120\n!\nroute-map block_provider permit 600")
+    fichier.write("\n!\n!\n!\ncontrol-plane\n!\n!\nline con 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline aux 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline vty 0 4\n login\n!\n!\nend\n")
 def search_ip(r_name,v_name,liste_AS,AS_n) :
     for As in liste_AS :
         if As.number == str(AS_n) :
@@ -157,4 +168,5 @@ for As in liste_AS :
                     neighbors_bgp.append((v_router.ip[4],As.number))
             BGP(fichier,As,router.id,neighbors_bgp,As.prefixes)
             IGP(fichier,router.id,As.igp,passive_int)
+            route_map(fichier,neighbors_bgp,As)
 
