@@ -163,7 +163,10 @@ def interfaces(fichier, ip, igp,interface_border):
     if ip[0] is None:
         fichier.write("\n no ip address\n shutdown\n duplex full\n!")
     else:
-        fichier.write(f"\n no ip address\n duplex full\n ipv6 address {ip[0]}/64\n ipv6 enable")
+        if igp == "OSPF":
+            fichier.write(f"\n no ip address\n duplex full\n ipv6 address {ip[0][0]}/64\n ipv6 enable")
+        else :
+            fichier.write(f"\n no ip address\n duplex full\n ipv6 address {ip[0]}/64\n ipv6 enable")
         if 1 not in interface_border or igp == "OSPF":
             ospf_ou_rip(igp, fichier)
         fichier.write("\n!")
@@ -182,7 +185,10 @@ Fonction aux_interfaces
 
 """
 def aux_interfaces(fichier, adresse, igp, border):
-    fichier.write(f"\n no ip address\n negotiation auto\n ipv6 address {adresse}/64\n ipv6 enable")
+    if igp == "OSPF":
+        fichier.write(f"\n no ip address\n negotiation auto\n ipv6 address {adresse[0]}/64\n ipv6 enable")
+    else :
+        fichier.write(f"\n no ip address\n negotiation auto\n ipv6 address {adresse}/64\n ipv6 enable")
     if border == False or igp == "OSPF":
         ospf_ou_rip(igp, fichier)
     fichier.write("\n!")
@@ -265,7 +271,10 @@ def search_ip(r_name,v_name,liste_AS,AS_n) :
                 if router.name == v_name :
                     for index in range(4):
                         if router.neighbors[index] == r_name :
-                            return router.ip[index]
+                            if As.igp == "OSPF" :
+                                return router.ip[index][0]
+                            else :
+                                return router.ip[index]
     print(f"{r_name},{v_name}")
     print("IP non trouvé")
     return None
