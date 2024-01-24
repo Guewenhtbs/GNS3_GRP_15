@@ -1,0 +1,6 @@
+cygwin warning:
+  MS-DOS style path detected: C:\Users\kergu.LAPTOP-RGB94A60\GNS3\projects\test client fp provider\project-files\dynamips
+  Preferred POSIX equivalent is: /cygdrive/c/Users/kergu.LAPTOP-RGB94A60/GNS3/projects/test client fp provider/project-files/dynamips
+  CYGWIN environment variable option "nodosfilewarning" turns off this warning.
+  Consult the user's guide for more details about POSIX paths:
+    http://cygwin.com/cygwin-ug-net/using.html#using-pathnames
