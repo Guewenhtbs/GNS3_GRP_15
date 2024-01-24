@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-with open("Donnees.json",'r',encoding='utf-8') as f :
+with open("Donnees_bgp.json",'r',encoding='utf-8') as f :
     data = json.load(f)
 
 
@@ -204,10 +204,10 @@ Fonction BGP
 """
 
 def BGP(fichier,AS,r_id,neighbors_BGP,prefixes) :
-    fichier.write(f"\nrouter bgp {AS}\n bgp router-id {r_id}\n bgp log-neighbor-changes\n no bgp default ipv4-unicast")
+    fichier.write(f"\nrouter bgp {AS.number}\n bgp router-id {r_id}\n bgp log-neighbor-changes\n no bgp default ipv4-unicast")
     border = False
     for (ip,v_AS) in neighbors_BGP :
-        if v_AS == AS :
+        if v_AS == AS.number :
             fichier.write(f"\n neighbor {ip} remote-as {v_AS}\n neighbor {ip} update-source Loopback0")
         else :
             fichier.write(f"\n neighbor {ip} remote-as {v_AS}")
@@ -215,10 +215,17 @@ def BGP(fichier,AS,r_id,neighbors_BGP,prefixes) :
     fichier.write("\n !\n address-family ipv4\n exit-address-family\n !\n address-family ipv6")
     if border == True :
         for pref in prefixes :
-            fichier.write(f"\n  network {pref}")
-    for (ip,_) in neighbors_BGP :
+            fichier.write(f"\n  network {pref} route-map tag_client")
+    for (ip,v_AS) in neighbors_BGP :
         fichier.write(f"\n  neighbor {ip} activate")
-    fichier.write("\n exit-address-family\n!\nip forward-protocol nd\n!\n!\nno ip http server\nno ip http secure-server\n!")
+        fichier.write(f"\n  neighbor {ip} send-community")
+        if v_AS == AS.number :
+            pass
+        else :
+            fichier.write(f"\n  neighbor {ip} route-map tag_{AS.neighbors[str(v_AS)]} in")
+            if AS.neighbors[str(v_AS)] != "client" :
+                fichier.write(f"\n  neighbor {ip} route-map block_{AS.neighbors[str(v_AS)]} out")
+    fichier.write(f"\n exit-address-family\n!\nip forward-protocol nd\n!\nip bgp-community new-format\nip community-list standard client permit {AS.number}:150\nip community-list standard free_peer permit {AS.number}:120\nip community-list standard provider permit {AS.number}:50\n!\nno ip http server\nno ip http secure-server\n!")
 
 """
 Fonction IGP
@@ -232,12 +239,24 @@ def IGP(fichier,r_id,igp,passive) :
         fichier.write(f"\nipv6 router ospf 15\n router-id {r_id}")
         for interface in passive :
             fichier.write(f"\n passive-interface {interface}")
-    fichier.write("\n!\n!\n!\n!\ncontrol-plane\n!\n!\nline con 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline aux 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline vty 0 4\n login\n!\n!\nend\n")
+    fichier.write("\n!\n!")
+
+def route_map(fichier,neighbors_BGP,AS) :
+    for (_,v_AS) in neighbors_BGP :
+        print ()
+        if v_AS != AS.number :           
+            fichier.write(f"\nroute-map tag_client permit 50\n set local-preference 150\n set community {AS.number}:150")
+            if AS.neighbors[str(v_AS)] == "free_peer" :
+                fichier.write(f"\n!\nroute-map tag_free_peer permit 50\n set local-preference 120\n set community {AS.number}:120\n!\nroute-map block_free_peer permit 50\n match community client")
+            if AS.neighbors[str(v_AS)] == "provider" :
+                fichier.write(f"\n!\nroute-map tag_provider permit 50\n set local-preference 50\n set community {AS.number}:50\n!\nroute-map block_provider permit 50\n match community client")
+    fichier.write("\n!\n!\n!\ncontrol-plane\n!\n!\nline con 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline aux 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline vty 0 4\n login\n!\n!\nend\n")
 
 """
 Fonction search_ip
 
 """
+
 
 def search_ip(r_name,v_name,liste_AS,AS_n) :
     for As in liste_AS :
@@ -247,6 +266,7 @@ def search_ip(r_name,v_name,liste_AS,AS_n) :
                     for index in range(4):
                         if router.neighbors[index] == r_name :
                             return router.ip[index]
+    print(f"{r_name},{v_name}")
     print("IP non trouvé")
     return None
   
@@ -256,7 +276,7 @@ liste_AS = lecture_json()
 correspondance = {1 : "FastEthernet0/0", 2 : "GigabitEthernet1/0", 3 : "GigabitEthernet2/0", 4 : "GigabitEthernet3/0"}
 for As in liste_AS :
     for router in As.router :
-        with open(f"Config_finale/i{router.name}_startup-config.cfg", "w") as fichier:
+        with open(f"Config_bgp/i{router.name}_startup-config.cfg", "w") as fichier:
             debut(fichier, router.name)
             interface_border = []
             for i in range(router.border[0]) :
@@ -275,6 +295,7 @@ for As in liste_AS :
             for v_router in As.router :
                 if router != v_router :
                     neighbors_bgp.append((v_router.ip[4],As.number))
-            BGP(fichier,As.number,router.id,neighbors_bgp,As.prefixes)
+            BGP(fichier,As,router.id,neighbors_bgp,As.prefixes)
             IGP(fichier,router.id,As.igp,passive_int)
+            route_map(fichier,neighbors_bgp,As)
 
