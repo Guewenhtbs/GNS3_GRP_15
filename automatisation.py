@@ -133,7 +133,7 @@ def debut(fichier, name):
 
 
 def interfaces(fichier, ip, igp,interface_border):
-         """ Ecriture des informations sur les interfaces.
+    """ Ecriture des informations sur les interfaces.
 
     Pour chaque interface (Loopback0, FastEthernet0/0, GigabitEthernet1/0, GigabitEthernet2/0, GigabitEthernet3/0), on la configure en fonction de l'IGP, du fait d'être un routeur de bordure...
     Parameters
