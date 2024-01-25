@@ -9,6 +9,7 @@ class AS :
     """Classe qui regroupe les caractéristiques de chaque AS.
 
     Attributes
+    
     ----------
     number : int
         C'est le numéro de l'AS.
