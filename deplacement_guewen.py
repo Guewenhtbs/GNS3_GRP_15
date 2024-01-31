@@ -1,7 +1,7 @@
 import os
 import shutil
 
-# Dictionnaire des correspondances entre numéro et UUID
+# Dictionnaire des correspondances entre numéro et le nom du dossier routeur.
 correspondance_numero_dossier = {
     "1": "fb64a267-ad5f-42bc-bd53-184fa2bfb77b",
     "2": "e7f857cc-60ba-481f-bd6d-bf321d8a309f",
@@ -15,15 +15,13 @@ correspondance_numero_dossier = {
     "10": "90ac2d6b-9388-4476-8cc8-16f60f15378a",
     "11": "fe196024-d77f-4239-81d5-3c0cb82d15ce",
     "12": "9239cfe6-441c-446e-984e-1077e5dcabba"
-    #"13": "92fd3895-4db0-4412-8d46-d2cc9be695db",
-    #"14": "acdcac23-67fc-40b3-9fbe-a495b49e42f5"
 }
 
 # Chemin du dossier contenant les fichiers .cfg
-chemin_dossier_source = 'C:/Users/kergu.LAPTOP-RGB94A60/Documents/TC/GNS3/GNS3_GRP_15/Config_bgp'  # Remplacez cela par votre chemin réel
+chemin_dossier_source = 'C:/Users/kergu.LAPTOP-RGB94A60/Documents/TC/GNS3/GNS3_GRP_15/Config_finale'  # Remplacez cela par votre chemin réel
 
 # Chemin du dossier de destination principal
-chemin_dossier_destination = "C:/Users/kergu.LAPTOP-RGB94A60/Documents/TC/GNS3/GNS3_GRP_15/GNS3_file/project-files/dynamips"
+chemin_dossier_destination = "./GNS3_file/project-files/dynamips"
 
 for fichier in os.listdir(chemin_dossier_source):
     numero = fichier[1:fichier.find('_')] 

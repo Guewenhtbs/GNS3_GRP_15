@@ -1,7 +1,7 @@
 import os
 import shutil
 
-# Dictionnaire des correspondances entre numéro et UUID
+# Dictionnaire des correspondances entre numéro et le nom du dossier routeur.
 correspondance_numero_dossier = {
     "1": "fb64a267-ad5f-42bc-bd53-184fa2bfb77b",
     "2": "e7f857cc-60ba-481f-bd6d-bf321d8a309f",
@@ -18,7 +18,7 @@ correspondance_numero_dossier = {
 }
 
 # Chemin du dossier contenant les fichiers .cfg
-chemin_dossier_source = 'C:/Users/pc/OneDrive/Documents/GNS3/GNS3_GRP_15/Config_bgp'  # Remplacez cela par votre chemin réel
+chemin_dossier_source = 'C:/Users/pc/OneDrive/Documents/GNS3/GNS3_GRP_15/Config_finale'  # Remplacez cela par votre chemin réel
 
 # Chemin du dossier de destination principal
 chemin_dossier_destination = 'C:/Users/pc/OneDrive/Documents/GNS3/GNS3_GRP_15/GNS3_file/project-files/dynamips'
