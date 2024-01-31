@@ -271,7 +271,7 @@ def BGP(fichier,AS,r_id,neighbors_BGP,prefixes) :
         C'est le numéro du routeur.
 
     neighbors_BGP : list of (ip_address str, AS_number str)
-        Liste des adresses ip et numéro d'AS des voisins eBGP du routeur.
+        Liste des adresses ip et numéro d'AS des voisins BGP du routeur.
 
     prefixes : list of str
         Ce sont les préfixes de sous_réseaux à annoncer.
@@ -347,7 +347,7 @@ def route_map(fichier,neighbors_BGP,AS) :
         C'est le fichier dans lequel on écrit la configuration.
 
     neighbors_BGP : list of (ip_address str,AS_number str)
-        Liste des adresses ip et numéro d'AS des voisins eBGP du routeur
+        Liste des adresses ip et numéro d'AS des voisins BGP du routeur
     
     AS : object AS
         Données de l'AS du routeur
@@ -414,12 +414,14 @@ for As in liste_AS :
         with open(f"Config_finale/i{router.name}_startup-config.cfg", "w") as fichier:
             debut(fichier, router.name)
             interface_border = []
+            # Stockage des interfaces qui sont connecté à un autre AS
             for i in range(router.border[0]) :
                 interface_border.append(router.border[i+1])
             interfaces(fichier, router.ip, As.igp,interface_border)
             neighbors_bgp = []
             passive_int = []
             index = 1
+            # Récupération de l'adresse ip et du numéro d'AS des voisins eBGP s'il y en a
             for neighbor in router.neighbors :
                 for i in range(router.border[0]) :
                     if router.border[i*2+1] == index :
@@ -427,6 +429,7 @@ for As in liste_AS :
                         if As.igp == "OSPF" :
                             passive_int.append(correspondance[index])
                 index+=1
+            # Stockage des adresses de loopback pour iBGP
             for v_router in As.router :
                 if router != v_router :
                     neighbors_bgp.append((v_router.ip[4],As.number))
