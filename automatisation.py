@@ -9,6 +9,8 @@ class AS :
     """Classe qui regroupe les caractéristiques de chaque AS.
 
     Attributes
+    
+    
     ----------
     number : str
         C'est le numéro de l'AS.
@@ -101,10 +103,6 @@ def lecture_json():
         for RTR_data in AS_data["routeur"]:
             liste_AS[i].router.append(ROUTER(RTR_data,liste_AS[i].number))
         i+=1
-    #for j in liste_AS :
-    #    print(j)
-    #    for k in j.router :
-    #        print (k)
     return liste_AS
 
 
@@ -132,22 +130,26 @@ def debut(fichier, name):
     fichier.write("!\n\n!\n! Last configuration change at " + formatted_date + "\n!\nversion 15.2\nservice timestamps debug datetime msec\nservice timestamps log datetime msec\n!\nhostname R" + str(name) + "\n!\nboot-start-marker\nboot-end-marker\n!\n!\n!\nno aaa new-model\nno ip icmp rate-limit unreachable\nip cef\n!\n!\n!\n!\n!\n!\nno ip domain lookup\nipv6 unicast-routing\nipv6 cef\n!\n!\nmultilink bundle-name authenticated\n!\n!\n!\n!\n!\n!\n!\n!\n!\nip tcp synwait-time 5\n! \n!\n!\n!\n!\n!\n!\n!\n!\n!\n!\n!")
 
 
-def interfaces(fichier, ip, igp,interface_border):
+def interfaces(fichier, ip, igp, interface_border):
     """ Ecriture des informations sur les interfaces.
 
-    Pour chaque interface (Loopback0, FastEthernet0/0, GigabitEthernet1/0, GigabitEthernet2/0, GigabitEthernet3/0), on la configure en fonction de l'IGP, du fait d'être un routeur de bordure...
+    Pour chaque interface (Loopback0, FastEthernet0/0, GigabitEthernet1/0, GigabitEthernet2/0, GigabitEthernet3/0), on la configure en fonction de l'IGP, 
+    du fait d'être un routeur de bordure... 
+    
     Parameters
     ----------
     fichier : fichier cfg
         C'est le fichier dans lequel on écrit la configuration.
 
-    ip : int
-        C'est le nom du routeur.
+    ip : list of str
+        Contient les adresses ip des interfaces.
     
     igp : int
-        IGP de l'AS à laqualle appartient le routeur
+        IGP de l'AS à laquelle appartient le routeur.
 
-    interface_border : 
+    interface_border : list of int
+        Contient les numéros des interfaces qui sont border.
+
 
     Returns
     -------
@@ -155,7 +157,10 @@ def interfaces(fichier, ip, igp,interface_border):
 
     """
     fichier.write(f"\ninterface Loopback0\n no ip address\n ipv6 address {ip[4]}/128\n ipv6 enable")
-    ospf_ou_rip(igp, fichier)
+    if igp == "OSPF":
+        fichier.write(f"\n ipv6 ospf 15 area 0")
+    elif igp == "RIP":
+        fichier.write(f"\n ipv6 rip 15 enable")
 
     nom_interface = ["FastEthernet0/0", "GigabitEthernet1/0", "GigabitEthernet2/0", "GigabitEthernet3/0"]
 
@@ -163,12 +168,12 @@ def interfaces(fichier, ip, igp,interface_border):
     if ip[0] is None:
         fichier.write("\n no ip address\n shutdown\n duplex full\n!")
     else:
-        if igp == "OSPF":
-            fichier.write(f"\n no ip address\n duplex full\n ipv6 address {ip[0][0]}/64\n ipv6 enable")
-        else :
+        if igp == "RIP" :
             fichier.write(f"\n no ip address\n duplex full\n ipv6 address {ip[0]}/64\n ipv6 enable")
+        if igp == "OSPF" :
+            fichier.write(f"\n no ip address\n duplex full\n ipv6 address {ip[0][0]}/64\n ipv6 enable")
         if 1 not in interface_border or igp == "OSPF":
-            ospf_ou_rip(igp, fichier)
+            ospf_ou_rip(igp, fichier, ip[0])
         fichier.write("\n!")
     for i in range(1, len(nom_interface)):
         fichier.write(f"\ninterface {nom_interface[i]}")
@@ -180,36 +185,102 @@ def interfaces(fichier, ip, igp,interface_border):
                 border = True
             aux_interfaces(fichier, ip[i], igp,border)
 
-"""
-Fonction aux_interfaces
 
-"""
 def aux_interfaces(fichier, adresse, igp, border):
-    if igp == "OSPF":
-        fichier.write(f"\n no ip address\n negotiation auto\n ipv6 address {adresse[0]}/64\n ipv6 enable")
-    else :
+    """ Fonction auxiliaire pour l'écriture des configs des interfaces. 
+
+    Evite la répétition de code pour la configuration de RIP et OSPF.
+    
+    Parameters
+    ----------
+    fichier : fichier cfg
+        C'est le fichier dans lequel on écrit la configuration.
+
+    adresse : list of strings
+        Contient les adresses ip des interfaces.
+    
+    igp : int
+        IGP de l'AS à laquelle appartient le routeur.
+
+    border : boolean
+        Décrit si c'est un router de bordure ou non.
+
+    Returns
+    -------
+    Rien : la fonction écrit dans le fichier
+
+    """
+    if igp == "RIP" : 
         fichier.write(f"\n no ip address\n negotiation auto\n ipv6 address {adresse}/64\n ipv6 enable")
+    
+    if igp == "OSPF" :
+        fichier.write(f"\n no ip address\n negotiation auto\n ipv6 address {adresse[0]}/64\n ipv6 enable")
+  
+  
     if border == False or igp == "OSPF":
-        ospf_ou_rip(igp, fichier)
+        ospf_ou_rip(igp, fichier, adresse)
+        ospf_ou_rip(igp, fichier, adresse)
     fichier.write("\n!")
 
-"""
-Fonction ospf_ou_rip
 
-"""
+def ospf_ou_rip(igp, fichier, ip):
+    """ Fonction auxiliaire pour l'écriture des configs des interfaces. C'est ici qu'est géré le coût OSPF.
 
-def ospf_ou_rip(igp, fichier):
+    Ecriture de la suite des commandes RIP/ OSPF
+    
+    Parameters
+    ----------
+    fichier : fichier cfg
+        C'est le fichier dans lequel on écrit la configuration.
+
+    ip : list of str
+        Contient les adresses ip des interfaces.
+        
+    igp : str
+        IGP de l'AS à laquelle appartient le routeur
+
+    Returns
+    -------
+    Rien : la fonction écrit dans le fichier
+
+    """
     if igp == "OSPF":
         fichier.write(f"\n ipv6 ospf 15 area 0")
+        if ip!=None :
+            if ip[1]!=None :
+                fichier.write(f"\n ipv6 ospf cost {ip[1]}")
+
     elif igp == "RIP":
         fichier.write(f"\n ipv6 rip 15 enable")
         
-"""
-Fonction BGP
-
-"""
 
 def BGP(fichier,AS,r_id,neighbors_BGP,prefixes) :
+    """ Activation de BGP. 
+
+    Fonction qui paramètre les routeurs iBGP, eBGP du routeur. On annonce les préfixes et on gère les routes map associées à chaque routeur voisin. 
+
+    Parameters
+    ----------
+    fichier : fichier cfg
+        C'est le fichier dans lequel on écrit la configuration.
+
+    AS : class
+        Pour récupérer la structure.
+
+    r_id : int
+        C'est le numéro du routeur.
+
+    neighbors_BGP : list of (ip_address str, AS_number str)
+        Liste des adresses ip et numéro d'AS des voisins eBGP du routeur.
+
+    prefixes : list of str
+        Ce sont les préfixes de sous_réseaux à annoncer.
+
+    Returns
+    -------
+    Rien : la fonction écrit dans le fichier
+
+    """
     fichier.write(f"\nrouter bgp {AS.number}\n bgp router-id {r_id}\n bgp log-neighbor-changes\n no bgp default ipv4-unicast")
     border = False
     for (ip,v_AS) in neighbors_BGP :
@@ -233,10 +304,6 @@ def BGP(fichier,AS,r_id,neighbors_BGP,prefixes) :
                 fichier.write(f"\n  neighbor {ip} route-map block_{AS.neighbors[str(v_AS)]} out")
     fichier.write(f"\n exit-address-family\n!\nip forward-protocol nd\n!\nip bgp-community new-format\nip community-list standard client permit {AS.number}:150\nip community-list standard free_peer permit {AS.number}:120\nip community-list standard provider permit {AS.number}:50\n!\nno ip http server\nno ip http secure-server\n!")
 
-"""
-Fonction IGP
-
-"""
 
 def IGP(fichier,r_id,igp,passive) :
     """ Ecriture des informations sur le routage interne a l'AS.
