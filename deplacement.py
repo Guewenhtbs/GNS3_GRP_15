@@ -18,10 +18,10 @@ correspondance_numero_dossier = {
 }
 
 # Chemin du dossier contenant les fichiers .cfg
-chemin_dossier_source = 'C:/Users/pc/OneDrive/Documents/GNS3/GNS3_GRP_15/Config_finale'  # Remplacez cela par votre chemin réel
+chemin_dossier_source = './Config_finale'  
 
 # Chemin du dossier de destination principal
-chemin_dossier_destination = 'C:/Users/pc/OneDrive/Documents/GNS3/GNS3_GRP_15/GNS3_file/project-files/dynamips'
+chemin_dossier_destination = "./GNS3_file/project-files/dynamips"
 
 for fichier in os.listdir(chemin_dossier_source):
     numero = fichier[1:fichier.find('_')] 
