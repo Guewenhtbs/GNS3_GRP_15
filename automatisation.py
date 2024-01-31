@@ -10,6 +10,7 @@ class AS :
 
     Attributes
     
+    
     ----------
     number : int
         C'est le numéro de l'AS.
@@ -215,7 +216,9 @@ def aux_interfaces(fichier, adresse, igp, border):
     if igp == "OSPF" :
         fichier.write(f"\n no ip address\n negotiation auto\n ipv6 address {adresse[0]}/64\n ipv6 enable")
   
+  
     if border == False or igp == "OSPF":
+        ospf_ou_rip(igp, fichier, adresse)
         ospf_ou_rip(igp, fichier, adresse)
     fichier.write("\n!")
 
