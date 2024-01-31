@@ -10,7 +10,7 @@ class AS :
 
     Attributes
     ----------
-    number : int
+    number : str
         C'est le numéro de l'AS.
     igp : str
         C'est le protocole de routage interne à l'AS : "RIP" ou "OSPF".
@@ -57,7 +57,7 @@ class ROUTER :
     as_n : str
         C'est le numéro de l'AS à laquelle appartient le routeur.
     id : str
-        C'est l'identifiant bgp du routeur.
+        C'est l'identifiant igp du routeur.
 
      Parameters
     ----------
@@ -239,6 +239,28 @@ Fonction IGP
 """
 
 def IGP(fichier,r_id,igp,passive) :
+    """ Ecriture des informations sur le routage interne a l'AS.
+
+    On active l'IGP en fonction de si on est en RIP ou en OSPF.
+    Parameters
+    ----------
+    fichier : fichier cfg
+        C'est le fichier dans lequel on écrit la configuration.
+
+    r_id : int
+        C'est l'identifiant IGP du routeur.
+    
+    igp : int
+        IGP de l'AS à laqualle appartient le routeur
+
+    passive : str
+        nom de l'interface sur laquelle on a une passive interface
+
+    Returns
+    -------
+    Rien : la fonction écrit dans le fichier
+
+    """
     if igp == "RIP" :
         fichier.write(f"\nipv6 router rip 15\n redistribute connected")
     elif igp == "OSPF" :
@@ -247,7 +269,27 @@ def IGP(fichier,r_id,igp,passive) :
             fichier.write(f"\n passive-interface {interface}")
     fichier.write("\n!\n!")
 
+
 def route_map(fichier,neighbors_BGP,AS) :
+    """ Ecriture des routes map pour les community BGP
+
+    En fonction du type de voisin on configure les community et les envois de route vers les voisins eBGP.
+    Parameters
+    ----------
+    fichier : fichier cfg
+        C'est le fichier dans lequel on écrit la configuration.
+
+    neighbors_BGP : list of (ip_address str,AS_number str)
+        Liste des adresses ip et numéro d'AS des voisins eBGP du routeur
+    
+    AS : object AS
+        Données de l'AS du routeur
+        
+    Returns
+    -------
+    Rien : la fonction écrit dans le fichier
+
+    """
     for (_,v_AS) in neighbors_BGP :
         print ()
         if v_AS != AS.number :           
@@ -258,13 +300,30 @@ def route_map(fichier,neighbors_BGP,AS) :
                 fichier.write(f"\n!\nroute-map tag_provider permit 50\n set local-preference 50\n set community {AS.number}:50\n!\nroute-map block_provider permit 50\n match community client")
     fichier.write("\n!\n!\n!\ncontrol-plane\n!\n!\nline con 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline aux 0\n exec-timeout 0 0\n privilege level 15\n logging synchronous\n stopbits 1\nline vty 0 4\n login\n!\n!\nend\n")
 
-"""
-Fonction search_ip
-
-"""
-
 
 def search_ip(r_name,v_name,liste_AS,AS_n) :
+    """ Recherche de l'ip d'un voisin en eBGP.
+
+    Pour un routeur donné on recherche l'ip d'un routeur d'une autre AS sur son interface en eBGP.
+    Parameters
+    ----------
+    r_name : int
+        C'est le numéro du routeur dont on veux récupérer le voisin eBGP.
+
+    v_name : int
+        C'est le numéro du routeur dont on cherche l'adresse ip
+    
+    liste_AS : list of AS(objects)
+        Liste de tout les objets AS de notre config
+
+    AS_n : str
+        Numéro d'AS du voisin eBGP
+
+    Returns
+    -------
+    ip_router : l'adresse ip du routeur voisin que l'on veut connecter en eBGP
+
+    """
     for As in liste_AS :
         if As.number == str(AS_n) :
             for router in As.router :
